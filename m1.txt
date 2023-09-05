@@ -1,0 +1,9 @@
+Main-Class: App
+Class-Path: mysqljava.jar
+
+
+
+
+
+
+

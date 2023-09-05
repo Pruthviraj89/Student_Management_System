@@ -1,0 +1,1010 @@
+1- App.java
+
+ public class App {
+    public static void main(String args[]){
+       SignUp a=new SignUp();
+    }
+    
+}
+
+2-sms.java
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+
+
+public class Sms extends JFrame{
+	Container c;
+	JButton btnAdd,btnView,btnUpdate,btnDelete;
+
+	public Sms(){
+		c = getContentPane();
+       		c.setLayout(null);
+	
+	btnAdd=new JButton("Add");
+	btnView=new JButton("View");
+	btnUpdate=new JButton("Update");
+	btnDelete=new JButton("Delete");
+	
+	Font f=new Font("Calibri",Font.BOLD,25);
+	btnAdd.setFont(f);
+	btnView.setFont(f);
+	btnUpdate.setFont(f);
+	btnDelete.setFont(f);
+	
+	btnAdd.setBounds(250, 70, 300, 50);
+	btnView.setBounds(250, 130, 300, 50);
+	btnUpdate.setBounds(250, 190, 300, 50);
+	btnDelete.setBounds(250, 250, 300, 50);
+	
+	c.add(btnAdd);
+	c.add(btnView);
+	c.add(btnUpdate);
+	c.add(btnDelete);
+
+
+
+	ActionListener a= (ae)->{
+		if(ae.getSource()==btnView){
+			View v= new View();
+			dispose();
+		}
+		if(ae.getSource()==btnAdd){
+			Add add =new Add();
+			dispose();
+		}
+		if(ae.getSource()==btnUpdate){
+			Update update=new Update();
+			dispose();
+		}
+		if(ae.getSource()==btnDelete){
+			Delete delete=new Delete();
+			dispose();
+		}
+	};
+
+
+	btnView.addActionListener(a);
+	btnAdd.addActionListener(a);
+	btnUpdate.addActionListener(a);
+	btnDelete.addActionListener(a);
+
+	setTitle("Home Page");
+        setSize(800, 600);
+	setResizable(false);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+	
+	
+	}
+}
+
+
+
+3) Add.java
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+
+public class Add extends JFrame{
+	Container c;
+	JLabel Rollno,Name,Marks;
+	JTextField txtRollno,txtName,txtMarks;
+	JButton btnSave,btnBack;
+	public Add(){
+		c = getContentPane();
+       		c.setLayout(null);
+
+		Rollno=new JLabel("Roll No");
+		txtRollno=new JTextField();
+		Name=new JLabel("Name");
+		txtName=new JTextField();
+		Marks=new JLabel("Marks");
+		txtMarks=new JTextField();
+		btnSave=new JButton("Save");
+		btnBack=new JButton("Back");
+
+		Font f=new Font("Calibri",Font.BOLD,25);
+
+		Rollno.setFont(f);
+		txtRollno.setFont(f);
+		Name.setFont(f);
+		txtName.setFont(f);
+		Marks.setFont(f);
+		txtMarks.setFont(f);
+		btnSave.setFont(f);
+		btnBack.setFont(f);
+
+
+		Rollno.setBounds(150, 50, 300, 50);
+		txtRollno.setBounds(250, 50, 300, 50);
+		Name.setBounds(150, 150, 100, 50);
+		txtName.setBounds(250, 150, 300, 50);
+		Marks.setBounds(150, 250, 300, 50);
+		txtMarks.setBounds(250, 250, 300, 50);
+		btnSave.setBounds(250, 350, 300, 50);
+		btnBack.setBounds(250, 420, 300, 50);
+
+		c.add(Rollno);
+		c.add(txtRollno);
+		c.add(Name);
+		c.add(txtName);
+		c.add(Marks);
+		c.add(txtMarks);
+		c.add(btnSave);
+		c.add(btnBack);
+
+		ActionListener a=(ae)->{
+			if(ae.getSource()==btnBack){
+		
+				Sms home=new Sms();
+				dispose();
+			}
+			if(ae.getSource()==btnSave){
+
+				try{
+
+				String rollno=txtRollno.getText();
+				String name=txtName.getText();
+				String mark=txtMarks.getText();
+				
+				rollno=rollno.trim();
+				name=name.trim();
+				mark=mark.trim();
+				
+				
+				int newMark=Integer.parseInt(mark);
+
+
+				if(name.length()==0){
+						txtName.setText("");
+						txtName.requestFocus();
+						JOptionPane.showMessageDialog(c,"Name cannot be empty");
+				}else if(rollno.length()==0){
+					txtRollno.setText("");
+						txtRollno.requestFocus();
+						JOptionPane.showMessageDialog(c,"Roll No cannot be empty");
+				}else if(mark.length()==0){	
+						txtMarks.setText("");
+						txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"Marks cannot be empty");
+				}else if(!(name.length()>2)){
+					txtName.setText("");
+					txtName.requestFocus();
+					JOptionPane.showMessageDialog(c,"name length should not be less than two");
+				}else if(!name.matches("[A-Za-z]+")){
+					txtName.setText("");
+					txtName.requestFocus();
+					JOptionPane.showMessageDialog(c,"Enter valid name");
+				}else if(!(rollno.matches("[0-9]+")||mark.matches("[0-9-]+"))){
+					txtRollno.setText("");
+					txtRollno.requestFocus();
+					txtMarks.setText("");
+					txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"rollno and marks should contain only Numbers ");
+				}else if(!((newMark > 0 || newMark==0)&& (newMark<100 ||newMark==100))){
+					txtMarks.setText("");
+					txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"Marks should range within or equal to  0 to 100");
+				}else{
+
+					boolean exists=false;
+					DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+					String url="jdbc:mysql://localhost:3306/sms";
+					Connection con= DriverManager.getConnection(url,"root","Pmane@89");
+					String sql="select rollno from student where rollno=?";
+					PreparedStatement pst= con.prepareStatement(sql);
+					pst.setString(1,rollno);
+					ResultSet resultSet= pst.executeQuery();
+
+					while(resultSet.next()){
+						exists=true;
+						break;
+					};
+
+					if(!exists){
+						sql="insert into student values(?,?,?)";
+						pst= con.prepareStatement(sql);
+						pst.setString(1,rollno);						
+						pst.setString(2,name);
+						pst.setString(3,mark);
+						pst.executeUpdate();
+						pst.close();
+						con.close();
+						
+						txtRollno.setText("");
+						txtRollno.requestFocus();
+						txtName.setText("");
+						txtName.requestFocus();
+						txtMarks.setText("");
+						txtMarks.requestFocus();
+						JOptionPane.showMessageDialog(c, "Added Sucessfull");
+						
+					}else{
+						JOptionPane.showMessageDialog(c, "Already Added");
+						pst.close();
+						con.close();
+						
+						txtRollno.setText("");
+						txtRollno.requestFocus();
+						txtName.setText("");
+						txtName.requestFocus();
+						txtMarks.setText("");
+						txtMarks.requestFocus();
+					}
+
+					
+
+
+				}
+				}catch(NumberFormatException e){
+					txtRollno.setText("");
+					txtRollno.requestFocus();
+					txtMarks.setText("");
+					txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"rollno and marks should contain only Numbers ");
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(c,"error :"+e);
+				}
+
+				
+				
+			}
+		};
+		btnBack.addActionListener(a);
+		btnSave.addActionListener(a);
+
+
+
+
+
+	setTitle("Add");
+        setSize(800, 600);
+	setResizable(false);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+
+
+
+
+		
+	}
+
+}
+
+
+4) login.java
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+
+public class Login extends JFrame{
+	Container c;
+	JLabel Login,EnterUsername,EnterPassword;
+	JTextField txtUsername;
+	JPasswordField txtPassword; 
+	JButton btnSignUp,btnSubmit;
+
+	public Login(){
+	c = getContentPane();
+        c.setLayout(null);
+		
+	Login=new JLabel("Login");
+	EnterUsername=new JLabel("Enter Username");
+	txtUsername=new JTextField();
+	EnterPassword=new JLabel("Enter Password");
+	txtPassword=new JPasswordField();
+	btnSubmit=new JButton("Login");
+	btnSignUp=new JButton("Sign Up");
+
+	Font f= new Font("Calibri",Font.BOLD,25);
+	Login.setFont(f);
+	EnterUsername.setFont(f);
+	txtUsername.setFont(f);
+	EnterPassword.setFont(f);
+	txtPassword.setFont(f);
+	btnSubmit.setFont(f);
+	btnSignUp.setFont(f);
+
+
+	Login.setBounds(350, 25, 300, 50);
+	EnterUsername.setBounds(250, 100, 300, 50);
+	txtUsername.setBounds(250, 150, 300, 50);
+	EnterPassword.setBounds(250, 200, 300, 50);
+	txtPassword.setBounds(250, 250, 300, 50);
+	btnSubmit.setBounds(250, 330, 300, 50);
+	btnSignUp.setBounds(250, 400, 300, 50);
+
+
+
+
+	c.add(Login);
+	c.add(EnterUsername);
+	c.add(txtUsername);
+	c.add(EnterPassword);
+	c.add(txtPassword);
+	c.add(btnSubmit);
+	c.add(btnSignUp);
+
+
+
+
+	ActionListener a=(ae)->{
+		if(ae.getSource()==btnSignUp){
+			SignUp signup=new SignUp();
+			dispose();
+		}if(ae.getSource()==btnSubmit){
+			String Username=txtUsername.getText();
+			String Password=txtPassword.getText();
+			Username=Username.trim();
+			Password=Password.trim();
+			
+			if(Username.length()==0){
+			
+			txtUsername.setText("");
+			txtUsername.requestFocus();
+			JOptionPane.showMessageDialog(c,"  Username cannot be empty");
+			}else if(Password.length()==0){
+			
+			txtPassword.setText("");
+			txtPassword.requestFocus();
+			JOptionPane.showMessageDialog(c,"  Password cannot be empty");
+			}else{
+				try{
+					boolean exists=false;
+					DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+					String url="jdbc:mysql://localhost:3306/sms";
+					Connection con= DriverManager.getConnection(url,"root","Pmane@89");
+					String sql="select * from register where username=? and password=?";
+					PreparedStatement pst= con.prepareStatement(sql);
+					pst.setString(1,Username);
+					pst.setString(2,Password);
+					ResultSet resultSet= pst.executeQuery();
+
+
+					while(resultSet.next()){
+						exists=true;
+						break;
+					};
+
+					if(exists){
+					Sms main = new Sms();
+					dispose();
+					}else{
+						txtUsername.setText("");
+						txtUsername.requestFocus();
+						txtPassword.setText("");
+						txtPassword.requestFocus();
+						JOptionPane.showMessageDialog(c, "Invalid Username or Password");
+					}
+					
+
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(c, "issue "+e);
+				}
+
+
+			
+			}			
+
+				
+			
+			}	
+	};
+	btnSignUp.addActionListener(a);
+	btnSubmit.addActionListener(a);
+
+	setTitle("Login");
+        setSize(800, 600);
+	setResizable(false);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+
+
+	}
+
+
+}
+
+
+5)  signup.java
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class SignUp extends JFrame {
+	Container c;
+	JLabel SignUp,EnterUsername,EnterPassword,RepeatPassword;
+	JTextField txtUsername;
+	JPasswordField txtPassword,txtRepeatPassword;
+	JButton btnSubmit,btnLogin;
+	
+    public SignUp() {
+        c = getContentPane();
+        c.setLayout(null);
+	
+	SignUp=new JLabel("Sign Up");
+	EnterUsername=new JLabel("Enter Username");
+	txtUsername=new JTextField();
+	EnterPassword=new JLabel("Enter Password");
+	txtPassword=new JPasswordField();
+	RepeatPassword=new JLabel("Repeat Password");
+	txtRepeatPassword=new JPasswordField();
+	btnSubmit=new JButton("Sign Up");
+	btnLogin=new JButton("Login");
+
+	Font f= new Font("Calibri",Font.BOLD,25);
+	SignUp.setFont(f);
+	EnterUsername.setFont(f);
+	txtUsername.setFont(f);
+	EnterPassword.setFont(f);
+	txtPassword.setFont(f);
+	RepeatPassword.setFont(f);
+	txtRepeatPassword.setFont(f);
+	btnSubmit.setFont(f);
+	btnLogin.setFont(f);
+
+	SignUp.setBounds(350, 50, 300, 50);
+	EnterUsername.setBounds(250, 100, 300, 50);
+	txtUsername.setBounds(250, 150, 300, 50);
+	EnterPassword.setBounds(250, 200, 300, 50);
+	txtPassword.setBounds(250, 250, 300, 50);
+	RepeatPassword.setBounds(250, 300, 300, 50);
+	txtRepeatPassword.setBounds(250, 350, 300, 50);
+	btnSubmit.setBounds(250, 420, 300, 50);
+	btnLogin.setBounds(250, 480, 300, 50);
+
+
+	c.add(SignUp);
+	c.add(EnterUsername);
+	c.add(txtUsername);
+	c.add(EnterPassword);
+	c.add(txtPassword);
+	c.add(RepeatPassword);
+	c.add(txtRepeatPassword);
+	c.add(btnSubmit);
+	c.add(btnLogin);
+
+	
+	ActionListener a = (ae) -> {
+		if(ae.getSource() == btnSubmit){
+
+			String Username=txtUsername.getText();
+			String Password=txtPassword.getText();
+			String rPassword=txtRepeatPassword.getText();
+			Password=Password.trim();
+			rPassword=rPassword.trim();
+			
+			if(Username.trim().length()==0  ){
+				JOptionPane.showMessageDialog(c,"  Username cannot be empty");
+				txtUsername.setText("");
+				txtUsername.requestFocus();
+			}else if(!(Username.length()>2)){
+				JOptionPane.showMessageDialog(c,"Enter a valid Username,username should be more that 2 length");
+				txtUsername.setText("");
+				txtUsername.requestFocus();
+			}else if(!Username.trim().matches( "[A-Za-z]+"  )){
+				JOptionPane.showMessageDialog(c," Enter a valid Username, Username should Contain only Alphabets");
+				txtUsername.setText("");
+				txtUsername.requestFocus();
+			}else if(!Password.trim().matches( "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,20}$" )){
+				JOptionPane.showMessageDialog(c,"Password should Contain atleast 8 characters,One digit,One Uppercase,One LowerCase,One Special Character");
+				txtPassword.setText("");
+				txtPassword.requestFocus();
+				txtRepeatPassword.setText("");
+				txtRepeatPassword.requestFocus();
+			}else if(! Password.matches(rPassword) ){
+				JOptionPane.showMessageDialog(c,"Password Does not match ");
+				txtPassword.setText("");
+				txtPassword.requestFocus();
+				txtRepeatPassword.setText("");
+				txtRepeatPassword.requestFocus();
+			}else if(Password.trim().length()==0){
+				JOptionPane.showMessageDialog(c,"  Password cannot be empty");
+				txtPassword.setText("");
+				txtPassword.requestFocus();
+			}else if(rPassword.trim().length()==0){
+				JOptionPane.showMessageDialog(c," Repeat Password cannot be empty");
+				txtRepeatPassword.setText("");
+				txtRepeatPassword.requestFocus();
+			}else{
+				try{
+					boolean exists=false;
+					DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+					String url="jdbc:mysql://localhost:3306/sms";
+					Connection con= DriverManager.getConnection(url,"root","Pmane@89");
+					String sql="select username from register where username=?";
+					PreparedStatement pst= con.prepareStatement(sql);
+					pst.setString(1,Username);
+					ResultSet resultSet= pst.executeQuery();
+
+
+					while(resultSet.next()){
+						exists=true;
+						break;
+					};
+					if(!exists){
+						sql="insert into register values(?,?)";
+						pst= con.prepareStatement(sql);
+						pst.setString(1,Username);						
+						pst.setString(2,Password);
+						pst.executeUpdate();
+						pst.close();
+						con.close();
+						
+						txtUsername.setText("");
+						txtUsername.requestFocus();
+						txtPassword.setText("");
+						txtPassword.requestFocus();
+						txtRepeatPassword.setText("");
+						txtRepeatPassword.requestFocus();
+						JOptionPane.showMessageDialog(c, "Registered Sucessfull");
+						Login login = new Login();
+						dispose();
+						
+					}else{
+						JOptionPane.showMessageDialog(c, "Username already Registered");
+						pst.close();
+						con.close();
+						txtUsername.setText("");
+						txtUsername.requestFocus();
+						txtPassword.setText("");
+						txtPassword.requestFocus();
+						txtRepeatPassword.setText("");
+						txtRepeatPassword.requestFocus();
+					}
+					
+					
+					
+					
+					
+					
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(c, "issue "+e);
+				}
+			}		
+			
+		}if(ae.getSource()==btnLogin){
+		Login login = new Login();
+		dispose();
+			
+		};
+	};
+	btnSubmit.addActionListener(a);
+	btnLogin.addActionListener(a);
+
+
+        
+        setTitle("Register");
+        setSize(800, 600);
+	setResizable(false);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+
+    }
+
+}
+
+
+
+6) update.java
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+
+public class Update extends JFrame{
+	Container c;
+	JLabel Rollno,name,marks,Update;
+	JTextField txtRollno,txtName,txtMarks;
+	JButton btnUpdate,btnBack;
+	public Update(){
+		c = getContentPane();
+       		c.setLayout(null);
+
+		Update=new JLabel("Update");
+;		Rollno=new JLabel("Roll No");
+		txtRollno=new JTextField();
+		name=new JLabel("Name");
+		txtName=new JTextField();
+		marks=new JLabel("Marks");
+		txtMarks=new JTextField();
+		btnUpdate=new JButton("Update");
+		btnBack=new JButton("Back");
+
+		Font f=new Font("Calibri",Font.BOLD,25);
+
+		Update.setFont(f);
+		Rollno.setFont(f);
+		txtRollno.setFont(f);
+		name.setFont(f);
+		txtName.setFont(f);
+		marks.setFont(f);
+		txtMarks.setFont(f);
+		btnUpdate.setFont(f);
+		btnBack.setFont(f);
+
+		Update.setBounds(350,50,100,50);
+		Rollno.setBounds(150, 100, 300, 50);
+		txtRollno.setBounds(250, 100, 300, 50);
+		name.setBounds(150, 200, 200, 50);
+		txtName.setBounds(250, 200, 300, 50);
+		marks.setBounds(150, 300, 300, 50);
+		txtMarks.setBounds(250, 300, 300, 50);
+		btnUpdate.setBounds(250, 400, 300, 50);
+		btnBack.setBounds(250, 480, 300, 50);
+
+
+		c.add(Update);
+		c.add(Rollno);
+		c.add(txtRollno);
+		c.add(name);
+		c.add(txtName);
+		c.add(marks);
+		c.add(txtMarks);
+		c.add(btnUpdate);
+		c.add(btnBack);
+
+		ActionListener a=(ae)->{
+			if(ae.getSource()==btnBack){
+		
+				Sms home=new Sms();
+				dispose();
+			}
+			if(ae.getSource()==btnUpdate){
+
+
+
+				
+				try{
+
+				String rollno=txtRollno.getText();
+				String name=txtName.getText();
+				String mark=txtMarks.getText();
+				
+				rollno=rollno.trim();
+				name=name.trim();
+				mark=mark.trim();
+				
+				
+				int newMark=Integer.parseInt(mark);
+			
+
+				if(name.length()==0){
+						txtName.setText("");
+						txtName.requestFocus();
+						JOptionPane.showMessageDialog(c,"Name cannot be empty");
+				}else if(rollno.length()==0){
+					txtRollno.setText("");
+						txtRollno.requestFocus();
+						JOptionPane.showMessageDialog(c,"Roll No cannot be empty");
+				}else if(mark.length()==0){	
+						txtMarks.setText("");
+						txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"Marks cannot be empty");
+				}else if(!(name.length()>2)){
+					txtName.setText("");
+					txtName.requestFocus();
+					JOptionPane.showMessageDialog(c,"name length should not be less than two");
+				}else if(!name.matches("[A-Za-z]+")){
+					txtName.setText("");
+					txtName.requestFocus();
+					JOptionPane.showMessageDialog(c,"Enter valid name");
+				}else if(!(rollno.matches("[0-9]+")||mark.matches("[0-9-]+"))){
+					txtRollno.setText("");
+					txtRollno.requestFocus();
+					txtMarks.setText("");
+					txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"rollno and marks should contain only Numbers ");
+				}else if(!((newMark > 0 || newMark==0)&& (newMark<100 ||newMark==100))){
+					txtMarks.setText("");
+					txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"Marks should range within or equal to  0 to 100");
+				}else{
+
+					boolean exists=false;
+					DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+					String url="jdbc:mysql://localhost:3306/sms";
+					Connection con= DriverManager.getConnection(url,"root","Pmane@89");
+					String sql="select rollno from student where rollno=?";
+					PreparedStatement pst= con.prepareStatement(sql);
+					pst.setString(1,rollno);
+					ResultSet resultSet= pst.executeQuery();
+
+					while(resultSet.next()){
+						exists=true;
+						break;
+					};
+
+					if(exists){
+						sql="update student set name=?, marks=? where rollno=?";
+						pst= con.prepareStatement(sql);
+						pst.setString(1,name);						
+						pst.setString(2,mark);
+						pst.setString(3,rollno);
+						pst.executeUpdate();
+						pst.close();
+						con.close();
+						
+						txtRollno.setText("");
+						txtRollno.requestFocus();
+						txtName.setText("");
+						txtName.requestFocus();
+						txtMarks.setText("");
+						txtMarks.requestFocus();
+						JOptionPane.showMessageDialog(c, "Added Sucessfull");
+						
+					}else{
+						
+						pst.close();
+						con.close();
+						txtRollno.setText("");
+						txtRollno.requestFocus();
+						txtName.setText("");
+						txtName.requestFocus();
+						txtMarks.setText("");
+						txtMarks.requestFocus();
+						JOptionPane.showMessageDialog(c, "Roll Number Does not exists");
+						
+					}
+
+					
+
+
+				}
+				}catch(NumberFormatException e){
+					txtRollno.setText("");
+					txtRollno.requestFocus();
+					txtMarks.setText("");
+					txtMarks.requestFocus();
+					JOptionPane.showMessageDialog(c,"rollno and marks should contain only Numbers ");
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(c,"error :"+e);
+				}
+
+
+			
+			}
+		};
+		btnBack.addActionListener(a);
+		btnUpdate.addActionListener(a);
+	
+
+
+
+
+
+		setTitle("Update");
+        	setSize(800, 600);
+		setResizable(false);
+        	setLocationRelativeTo(null);
+        	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        	setVisible(true);
+
+
+
+
+		
+	}
+
+}
+
+
+7) view.java
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+
+public class View extends JFrame{
+	Container c;
+	TextArea area;
+    	JButton btnBack;
+	public View(){
+		c = getContentPane();
+       		c.setLayout(null);
+	
+		area = new TextArea();
+        	area.setEditable(false);
+       	 	btnBack = new JButton("Back");
+        	Font f = new Font("Calibri", Font.BOLD, 25);
+        	area.setFont(f);
+        	btnBack.setFont(f);
+        	area.setBounds(50, 50, 680, 300);
+        	btnBack.setBounds(250, 380, 300, 50);
+        	c.add(area);
+        	c.add(btnBack);
+
+
+
+		try {
+            	DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+            	String url = "jdbc:mysql://localhost:3306/sms";
+            	Connection con = DriverManager.getConnection(url, "root", "Pmane@89");
+            	String sql = "select * from student";
+            	PreparedStatement pst = con.prepareStatement(sql);
+           	 ResultSet rs = pst.executeQuery();
+            	while (rs.next()) {
+                	area.append("Roll No : "+rs.getString(1)+ ",  Name : "+rs.getString(2)+",  Marks : "+rs.getString(3)+"\n");
+
+            	}
+        	} catch (Exception e) {
+           		JOptionPane.showMessageDialog(c, "issue"+e);
+        	}
+
+
+		ActionListener a= (ae)->{
+			if(ae.getSource()==btnBack){
+			 Sms home= new Sms();
+			dispose();
+			};
+		};
+		btnBack.addActionListener(a);
+		
+
+
+
+
+		setTitle("View");
+        	setSize(800, 600);
+		setResizable(false);
+        	setLocationRelativeTo(null);
+        	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        	setVisible(true);
+
+
+
+
+		
+	}
+
+}
+
+8) delete.java
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class Delete extends JFrame {
+	Container c;
+	JLabel rollno, Delete;
+	JTextField txtRollno;
+	JButton btnDelete, btnBack;
+
+	public Delete() {
+		c = getContentPane();
+		c.setLayout(null);
+		Delete = new JLabel("Delete");
+		rollno = new JLabel("Roll No");
+		txtRollno = new JTextField();
+		btnDelete = new JButton("Delete");
+		btnBack = new JButton("Back");
+
+		Font f = new Font("Calibri", Font.BOLD, 25);
+		Delete.setFont(f);
+		rollno.setFont(f);
+		txtRollno.setFont(f);
+		btnDelete.setFont(f);
+		btnBack.setFont(f);
+
+		Delete.setBounds(350, 50, 150, 50);
+		rollno.setBounds(150, 100, 300, 50);
+		txtRollno.setBounds(250, 100, 300, 50);
+		btnDelete.setBounds(250, 200, 300, 50);
+		btnBack.setBounds(250, 300, 300, 50);
+
+		c.add(Delete);
+		c.add(rollno);
+		c.add(txtRollno);
+		c.add(btnDelete);
+		c.add(btnBack);
+
+		ActionListener a = (ae) -> {
+			if (ae.getSource() == btnBack) {
+				Sms home = new Sms();
+				dispose();
+			}
+			if (ae.getSource() == btnDelete) {
+				try {
+					String rollno = txtRollno.getText();
+					rollno = rollno.trim();
+					if (rollno.length() == 0) {
+						txtRollno.setText("");
+						txtRollno.requestFocus();
+						JOptionPane.showMessageDialog(c, "Fileds cannot be empty");
+					} else if (!rollno.matches("[0-9]+")) {
+						txtRollno.setText("");
+						txtRollno.requestFocus();
+						JOptionPane.showMessageDialog(c, "rollno should contain only Numbers ");
+					} else {
+						boolean exists = false;
+						DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+						String url = "jdbc:mysql://localhost:3306/sms";
+						Connection con = DriverManager.getConnection(url, "root", "Pmane@89");
+						String sql = "select rollno from student where rollno=?";
+						PreparedStatement pst = con.prepareStatement(sql);
+						pst.setString(1, rollno);
+						ResultSet resultSet = pst.executeQuery();
+
+						while (resultSet.next()) {
+							exists = true;
+							break;
+						}
+						;
+
+						if (exists) {
+							sql = "delete from student where rollno=?";
+							pst = con.prepareStatement(sql);
+							pst.setString(1, rollno);
+							pst.executeUpdate();
+							pst.close();
+							con.close();
+
+							txtRollno.setText("");
+							txtRollno.requestFocus();
+
+							JOptionPane.showMessageDialog(c, "Deleted Sucessfully");
+
+						} else {
+							
+							pst.close();
+							con.close();
+
+							txtRollno.setText("");
+							txtRollno.requestFocus();
+							JOptionPane.showMessageDialog(c, "Roll Number Does not exists");
+						}
+
+					}
+
+				} catch (NumberFormatException e) {
+					txtRollno.setText("");
+					txtRollno.requestFocus();
+					JOptionPane.showMessageDialog(c, "rollno should contain only Numbers ");
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(c, "error :" + e);
+				}
+			}
+		};
+
+		btnBack.addActionListener(a);
+		btnDelete.addActionListener(a);
+
+		setTitle("Delete");
+		setSize(800, 600);
+		setResizable(false);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
+}
+
+
+
+
+
+
